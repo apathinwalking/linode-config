@@ -106,6 +106,9 @@ source ~/.config/theme/tmux-theme-base16.conf
 Also add these lines:
 
 ```fish
+# remove greeting
+set fish_greeting ""
+
 # set fish as default shell
 set -g default-shell "/usr/bin/fish"
 
@@ -269,3 +272,38 @@ Log in from YOUR computer with the following
 ```sh
 psql -h <server ip> -U <user> -d <dbname> -p 5432
 ```
+
+## Nodejs
+
+We are installing Nodejs 5.5.0.
+
+You need NVM to do that.
+
+Do this:
+
+```
+git clone https://github.com/creationix/nvm.git ~/.nvm
+cd ~/.nvm
+git checkout (git describe --abbrev=0 --tags)
+```
+
+Get a wrapper for the fish shell
+
+```
+cd ~/.nvm
+wget https://raw.githubusercontent.com/passcod/nvm-fish-wrapper/master/nvm.fish
+echo "set -x NVM_DIR ~/.nvm"
+source $NVM_DIR/nvm.fish
+```
+
+That should "install" nvm.
+
+Exit the server, and relog in.
+
+Now do this:
+
+```
+nvm install 5.5.0
+```
+
+
