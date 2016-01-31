@@ -178,10 +178,11 @@ createdb <otherdb>
 
 I created another db called watermap for that project specifically
 
-Connect to the db using new use
+Connect to the db using new user
 
 ```
 sudo -i -u <usrname>
+psql
 ```
 
 ### PostGIS
@@ -212,13 +213,15 @@ First find your ip address on your own computer:
 ip route get 8.8.8.8 | awk '{print $NF; exit}'
 ```
 
+You have to make sure that your IP Address is static for this.
+
 edit this file:
 
 ```
 nvim /etc/postgresql/9.5/main/pg_hba.conf
 ```
 
-Add this line, and replace with your ip address:
+Add this line, and replace with your ip address (followed by something like /24):
 
 ```
 host all all <ip-address> trust
@@ -227,7 +230,7 @@ host all all <ip-address> trust
 Edit this file:
 
 ```
-nvim vi /etc/postgresql/9.5/main/postgresql.conf
+nvim /etc/postgresql/9.5/main/postgresql.conf
 ```
 
 Edit the line with `listen_addresses='localhost'`:
@@ -235,6 +238,8 @@ Edit the line with `listen_addresses='localhost'`:
 ```
 listen_addresses='*'
 ```
+
+Make sure to uncomment it!
 
 Now restart postgres:
 
@@ -256,4 +261,11 @@ Restart the firewall:
 ```
 sudo service ufw stop
 sudo service ufw start
+```
+
+Log in from YOUR computer with the following
+ (make sure that you also have psql on your computer)
+
+```sh
+psql -h <server ip> -U <user> -d <dbname> -p 5432
 ```
