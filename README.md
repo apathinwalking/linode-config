@@ -1,4 +1,5 @@
 # linode-config
+
 Setting up a linode server
 
 ## Getting Started
@@ -99,6 +100,7 @@ mv .tmux-theme-base16.conf tmux-theme-base16.conf
 ```
 
 Add this to tmux.conf:
+
 ```
 source ~/.config/theme/tmux-theme-base16.conf
 ```
@@ -314,5 +316,29 @@ export NVM_DIR="$HOME/.nvm"
 [ -s "$NVM_DIR/nvm.sh" ] && . "$NVM_DIR/nvm.sh" # This loads nvm
 ```
 
+## Setting up domain
 
+Login to the domain provider (I used namecheap)
+ for your domain and add Name servers from linode:
 
+- ns1.linode.com
+- ns2.linode.com
+- ns3.linode.com
+- ns4.linode.com
+- ns5.linode.com
+
+Now you have to configure your domain.
+
+Go to the DNS manager on the linode dashboard and add a zone.
+Add your domain name here.
+Do that and click "Add a Master Zone"
+
+Now you have to can add DNS record.
+
+Or you can stick with the stuff they automatically fill in (www, mail)
+
+In the DNS Manager tab add a new A record...
+
+Fill in Hostname with 'testing' (or whatever you desire...)
+
+Fill in the IP Address with the servers ip
