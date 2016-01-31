@@ -290,6 +290,7 @@ git checkout (git describe --abbrev=0 --tags)
 Get a wrapper for the fish shell
 
 ```
+
 cd ~/.nvm
 wget https://raw.githubusercontent.com/passcod/nvm-fish-wrapper/master/nvm.fish
 echo "set -x NVM_DIR ~/.nvm"
@@ -305,5 +306,13 @@ Now do this:
 ```
 nvm install 5.5.0
 ```
+
+Delete these lines from ~/.profile, and add them to ~/.bashrc:
+
+```
+export NVM_DIR="$HOME/.nvm"
+[ -s "$NVM_DIR/nvm.sh" ] && . "$NVM_DIR/nvm.sh" # This loads nvm
+```
+
 
 
