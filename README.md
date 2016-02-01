@@ -200,6 +200,12 @@ sudo -i -u <usrname>
 psql
 ```
 
+Now make sure that postgres starts on reboot:
+
+```
+sudo update-rc.d postgresql enable
+```
+
 ### PostGIS
 
 Install postgis
