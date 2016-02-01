@@ -218,6 +218,7 @@ Install postgis
 
 ```
 sudo apt-get install postgresql-9.5-postgis-2.2
+sudo apt-get install postgis
 ```
 
 login to psql and enter the following:
