@@ -429,3 +429,36 @@ server {
 
 This lets any access to example.com redirect to 127.0.0.1:8080
  i.e. your nodejs hello app.
+
+Great! First app set up.
+
+### Adding Other Apps
+
+In order to add any extra apps, you would add another block to
+ /etc/nginx/sites-available/default like the following. Make sure
+ that any other apps have different ports. Anything
+ 8080+
+
+```
+    location /app2 {
+        proxy_pass http://127.0.0.1:8081;
+        proxy_http_version 1.1;
+        proxy_set_header Upgrade $http_upgrade;
+        proxy_set_header Connection 'upgrade';
+        proxy_set_header Host $host;
+        proxy_cache_bypass $http_upgrade;
+    }
+```
+
+Put your app in the ~/Apps directory, and make sure to run:
+
+```
+pm2 start ~/Apps/<newapp>/<newapp.js>
+pm2 save
+```
+
+If you make any changes to an app, make sure to `pm2 restart <appname>`
+
+Personally, I changed hello.js to be an index of the various projects I'm hosting.
+
+
