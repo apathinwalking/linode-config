@@ -4,12 +4,21 @@ Setting up a linode server
 
 ## Getting Started
 
-Follow the guide [here](https://www.linode.com/docs/getting-started)
+Follow the guide [here](https://www.linode.com/docs/getting-started).
+ However, note the following
 
-I chose Ubuntu 14.04
+- I chose Ubuntu 14.04
+- I set up TWO servers, a WEB and APP server.
+  - Web server: ~4GB
+  - App server: ~20GB
+- In order to do this, you have to deploy image twice.
+
+In the following sections, everything is to be done on the app server
+ unless otherwise specified.
 
 ## Adding a User
 
+SSH into the App server.
 Type this into the server you're now ssh'd into
 
 ```
@@ -37,6 +46,7 @@ sudo apt-get install fish
 ```
 
 Do this to change it to your default shell:
+Note: this may break things...
 
 ```
 chsh -s /usr/bin/fish
@@ -278,42 +288,12 @@ psql -h <server ip> -U <user> -d <dbname> -p 5432
 ## Nodejs
 
 We are installing Nodejs 5.5.0.
-
-You need NVM to do that.
-
-Do this:
+Do the following:
 
 ```
-git clone https://github.com/creationix/nvm.git ~/.nvm
-cd ~/.nvm
-git checkout (git describe --abbrev=0 --tags)
-```
-
-Get a wrapper for the fish shell
-
-```
-
-cd ~/.nvm
-wget https://raw.githubusercontent.com/passcod/nvm-fish-wrapper/master/nvm.fish
-echo "set -x NVM_DIR ~/.nvm"
-source $NVM_DIR/nvm.fish
-```
-
-That should "install" nvm.
-
-Exit the server, and relog in.
-
-Now do this:
-
-```
-nvm install 5.5.0
-```
-
-Delete these lines from ~/.profile, and add them to ~/.bashrc:
-
-```
-export NVM_DIR="$HOME/.nvm"
-[ -s "$NVM_DIR/nvm.sh" ] && . "$NVM_DIR/nvm.sh" # This loads nvm
+sudo apt-get install nodejs npm nodejs-legacy
+sudo npm install n -g
+sudo n 5.5.0
 ```
 
 ## Setting up domain
@@ -342,3 +322,110 @@ In the DNS Manager tab add a new A record...
 Fill in Hostname with 'testing' (or whatever you desire...)
 
 Fill in the IP Address with the servers ip
+
+## Setting up basic nodejs server
+
+I followed [this guide](https://www.digitalocean.com/community/tutorials/how-to-set-up-a-node-js-application-for-production-on-ubuntu-14-04)
+ but I didn't set up a seperate reverse proxy server,
+ so use the localhost IP address for app server's
+ private IP.
+
+Install PM2:
+
+```
+sudo npm install -g pm2
+```
+
+Make a directory in your home directory for code. I call it Apps.
+Also make a directory for our test app.
+
+```
+mkdir -p ~/Apps
+mkdir -p ~/Apps/hello
+```
+
+Open ~/Apps/hello/hello.js with nvim and add these lines,
+ replacing APP_PRIVATE_IP_ADDRESS with the private IP of the server.
+ Or 127.0.0.1 if no seperate server. You don't need the /17
+
+```
+var http = require('http');
+http.createServer(function (req, res) {
+  res.writeHead(200, {'Content-Type': 'text/plain'});
+  res.end('Hello World\n');
+}).listen(8080, '127.0.0.1');
+console.log('Server running at http://127.0.0.1:8080/');
+```
+
+Now test the code (start a tmux session, so you can do both of these)
+
+```
+node ~/Apps/hello/hello.js
+```
+
+In a seperate window:
+
+```
+curl http://127.0.0.1:8080
+```
+
+If you get "hello world" it worked!
+
+Now we have to get the app working as a background process with pm2.
+
+Do this:
+
+```
+pm2 start ~/Apps/hello/hello.js
+```
+
+Now do this to kill it:
+
+```
+pm2 stop hello
+```
+
+To get the app to start on system startup.
+
+```
+pm2 start ~/Apps/hello/hello.js
+bash
+sudo env PATH=$PATH:/usr/local/bin pm2 startup ubuntu -u <user>
+```
+
+Then `sudo reboot` to make sure it worked.
+SSH back in and then `pm2 ls` to make sure the
+ app is running.
+
+Note: if you screw up, do this: `sudo update-rc.d -f pm2-init.sh remove`
+
+### Setting up reverse proxy
+
+```
+sudo apt-get install nginx
+sudo mv /etc/nginx/sites-available/default /etc/nginx/sites-available/default.backup
+sudo nvim /etc/nginx/sites-available/default
+```
+
+Add these lines, replacing server_name with your domain.
+ Then `sudo reboot`
+
+```
+server {
+    listen 80;
+
+    server_name example.com;
+
+    location / {
+        proxy_pass http://127.0.0.1:8080;
+        proxy_http_version 1.1;
+        proxy_set_header Upgrade $http_upgrade;
+        proxy_set_header Connection 'upgrade';
+        proxy_set_header Host $host;
+        proxy_cache_bypass $http_upgrade;
+    }
+    }
+```
+
+This lets any access to example.com redirect to 127.0.0.1:8080
+ i.e. your nodejs hello app.
