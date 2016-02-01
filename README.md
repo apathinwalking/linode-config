@@ -200,10 +200,10 @@ psql
 Exit psql with `\q`.
 
 I created another db for a project I'm hosting. I made my user the owner,
- and user to connect as.
+ and user to connect as. Make sure encoding is UTF8.
 
 ```
-createdb green-pattern-map -p 5433
+createdb green-pattern-map -O <user> -U <user> -E utf8
 ```
 
 Now make sure that postgres starts on reboot:
