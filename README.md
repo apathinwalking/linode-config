@@ -188,16 +188,22 @@ Create the database for the new user:
 
 ```sh
 createdb <username>
-createdb <otherdb>
 ```
-
-I created another db called watermap for that project specifically
 
 Connect to the db using new user
 
 ```
 sudo -i -u <usrname>
 psql
+```
+
+Exit psql with `\q`.
+
+I created another db for a project I'm hosting. I made my user the owner,
+ and user to connect as.
+
+```
+createdb green-pattern-map -p 5433
 ```
 
 Now make sure that postgres starts on reboot:
